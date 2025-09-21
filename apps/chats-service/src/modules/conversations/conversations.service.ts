@@ -1,28 +1,32 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Conversation } from './conversation.entity';
 import { CreateConversationDto, UpdateConversationDto } from './dto/conversation.dto';
+import { PrismaService } from '../../prisma/prisma.service';
+import { Conversation } from '@prisma/client';
 
 @Injectable()
 export class ConversationsService {
-  constructor(
-    @InjectRepository(Conversation)
-    private conversationsRepo: Repository<Conversation>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async create(createConversationDto: CreateConversationDto): Promise<Conversation> {
-    const conversation = this.conversationsRepo.create(createConversationDto);
-    return await this.conversationsRepo.save(conversation);
+    return await this.prisma.conversation.create({
+      data: createConversationDto,
+    });
   }
 
   async findAll(): Promise<Conversation[]> {
-    return await this.conversationsRepo.find();
+    return await this.prisma.conversation.findMany({
+      include: {
+        messages: true,
+      },
+    });
   }
 
   async findOne(id: number): Promise<Conversation> {
-    const conversation = await this.conversationsRepo.findOne({ 
-      where: { id } 
+    const conversation = await this.prisma.conversation.findUnique({ 
+      where: { id },
+      include: {
+        messages: true,
+      },
     });
     if (!conversation) {
       throw new NotFoundException(`Conversation with ID ${id} not found`);
@@ -31,14 +35,20 @@ export class ConversationsService {
   }
 
   async findBySender(senderId: string): Promise<Conversation[]> {
-    return await this.conversationsRepo.find({
+    return await this.prisma.conversation.findMany({
       where: { sender_id: senderId },
+      include: {
+        messages: true,
+      },
     });
   }
 
   async findByReceiver(receiverId: string): Promise<Conversation[]> {
-    return await this.conversationsRepo.find({
+    return await this.prisma.conversation.findMany({
       where: { receiver_id: receiverId },
+      include: {
+        messages: true,
+      },
     });
   }
 
@@ -47,9 +57,10 @@ export class ConversationsService {
     if (!conversation) {
       throw new NotFoundException(`Conversation with ID ${id} not found`);
     }
-
-    await this.conversationsRepo.update(id, updateConversationDto);
-    return await this.findOne(id);
+    return await this.prisma.conversation.update({
+      where: { id },
+      data: updateConversationDto,
+    });
   }
 
   async remove(id: number): Promise<void> {
@@ -57,6 +68,8 @@ export class ConversationsService {
     if (!conversation) {
       throw new NotFoundException(`Conversation with ID ${id} not found`);
     }
-    await this.conversationsRepo.remove(conversation);
+    await this.prisma.conversation.delete({
+      where: { id },
+    });
   }
 }

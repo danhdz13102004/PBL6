@@ -6,29 +6,21 @@ RUN apt-get update && apt-get install -y openssl procps && rm -rf /var/lib/apt/l
 
 WORKDIR /app
 
-# Increase npm timeout and add more memory
-ENV NPM_CONFIG_FUND=false
-ENV NPM_CONFIG_AUDIT=false
-
 # Install nodemon globally for hot reloading
 RUN npm install -g nodemon
 
-# Copy package files for dependency installation
+# Copy package files
 COPY package*.json ./
 COPY turbo.json ./
-
-# Copy packages first
+COPY apps/classes-service/package*.json ./apps/classes-service/
+COPY apps/classes-service/prisma ./apps/classes-service/prisma
 COPY packages/ ./packages/
 
-# Copy meetings-service package.json
-COPY apps/meetings-service/package*.json ./apps/meetings-service/
-COPY apps/meetings-service/prisma ./apps/meetings-service/prisma
+# Install all dependencies (including dev dependencies)
+RUN npm ci
 
-# Clear npm cache and install dependencies with retry
-RUN npm cache clean --force && npm ci
-
-# Generate Prisma Client for meetings-service
-WORKDIR /app/apps/meetings-service
+# Generate Prisma Client for classes-service
+WORKDIR /app/apps/classes-service
 RUN npx prisma generate
 
 # Go back to root
@@ -42,7 +34,7 @@ RUN chown -R nestjs:nodejs /app
 
 USER nestjs
 
-EXPOSE 3004
+EXPOSE 3007
 
 # Use start:dev for hot reload - source code will be mounted as volume
-CMD ["sh", "-c", "cd apps/meetings-service && npx prisma db push && cd ../.. && npm run start:dev --workspace=meetings-service"]
+CMD ["sh", "-c", "cd apps/classes-service && npx prisma db push && cd ../.. && npm run start:dev --workspace=classes-service"]
