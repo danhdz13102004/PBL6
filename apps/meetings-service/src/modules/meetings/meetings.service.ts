@@ -1,26 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Meeting } from './meeting.entity';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateMeetingDto, UpdateMeetingDto } from './dto/meeting.dto';
 
 @Injectable()
 export class MeetingsService {
-  constructor(
-    @InjectRepository(Meeting)
-    private meetingsRepo: Repository<Meeting>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(createMeetingDto: CreateMeetingDto): Promise<Meeting> {
-    const meeting = this.meetingsRepo.create({
-      ...createMeetingDto,
-      start_time: new Date(createMeetingDto.start_time),
-      end_time: new Date(createMeetingDto.end_time),
+  async create(createMeetingDto: CreateMeetingDto) {
+    return await this.prisma.meeting.create({
+      data: {
+        ...createMeetingDto,
+        start_time: new Date(createMeetingDto.start_time),
+        end_time: new Date(createMeetingDto.end_time),
+      },
+      include: {
+        attendees: true,
+      },
     });
-    return await this.meetingsRepo.save(meeting);
   }
 
-  async update(id: number, updateMeetingDto: UpdateMeetingDto): Promise<Meeting> {
+  async update(id: number, updateMeetingDto: UpdateMeetingDto) {
     const meeting = await this.findOne(id);
     if (!meeting) {
       throw new NotFoundException(`Meeting with ID ${id} not found`);
@@ -34,13 +33,21 @@ export class MeetingsService {
       updateData.end_time = new Date(updateMeetingDto.end_time);
     }
 
-    await this.meetingsRepo.update(id, updateData);
-    return await this.findOne(id);
+    return await this.prisma.meeting.update({
+      where: { meeting_id: id },
+      data: updateData,
+      include: {
+        attendees: true,
+      },
+    });
   }
 
-  async findOne(id: number): Promise<Meeting> {
-    const meeting = await this.meetingsRepo.findOne({ 
-      where: { meeting_id: id } 
+  async findOne(id: number) {
+    const meeting = await this.prisma.meeting.findUnique({
+      where: { meeting_id: id },
+      include: {
+        attendees: true,
+      },
     });
     if (!meeting) {
       throw new NotFoundException(`Meeting with ID ${id} not found`);
@@ -48,16 +55,22 @@ export class MeetingsService {
     return meeting;
   }
 
-  async findByClass(classId: number): Promise<Meeting[]> {
-    return await this.meetingsRepo.find({
+  async findByClass(classId: number) {
+    return await this.prisma.meeting.findMany({
       where: { class_id: classId },
-      order: { start_time: 'ASC' },
+      include: {
+        attendees: true,
+      },
+      orderBy: { start_time: 'asc' },
     });
   }
 
-  async findAll(): Promise<Meeting[]> {
-    return await this.meetingsRepo.find({
-      order: { start_time: 'ASC' },
+  async findAll() {
+    return await this.prisma.meeting.findMany({
+      include: {
+        attendees: true,
+      },
+      orderBy: { start_time: 'asc' },
     });
   }
 
@@ -66,6 +79,8 @@ export class MeetingsService {
     if (!meeting) {
       throw new NotFoundException(`Meeting with ID ${id} not found`);
     }
-    await this.meetingsRepo.remove(meeting);
+    await this.prisma.meeting.delete({
+      where: { meeting_id: id },
+    });
   }
 }

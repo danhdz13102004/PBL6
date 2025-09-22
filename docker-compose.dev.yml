@@ -14,8 +14,6 @@ services:
     networks:
       - microservices-network
 
-
-
   postgres-meetings:
     image: postgres:15-alpine
     restart: unless-stopped
@@ -99,6 +97,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3001
+      - USERS_DATABASE_URL=postgresql://postgres:postgres123@postgres-users:5432/users_db
     ports:
       - "3001:3001"
     volumes:
@@ -108,6 +107,9 @@ services:
       - ./apps/users-service/tsconfig.build.json:/app/apps/users-service/tsconfig.build.json
       - ./apps/users-service/nest-cli.json:/app/apps/users-service/nest-cli.json
       - ./apps/users-service/nodemon.json:/app/apps/users-service/nodemon.json
+      - ./apps/users-service/package.json:/app/apps/users-service/package.json
+      - ./apps/users-service/prisma:/app/apps/users-service/prisma
+      - ./apps/users-service/.env:/app/apps/users-service/.env
       # Mount shared packages
       - ./packages:/app/packages
       # Named volumes for node_modules to prevent anonymous volumes
@@ -137,6 +139,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3004
+      - MEETINGS_DATABASE_URL=postgresql://postgres:postgres123@postgres-meetings:5432/meetings_db
     ports:
       - "3004:3004"
     volumes:
@@ -145,6 +148,9 @@ services:
       - ./apps/meetings-service/tsconfig.json:/app/apps/meetings-service/tsconfig.json
       - ./apps/meetings-service/tsconfig.build.json:/app/apps/meetings-service/tsconfig.build.json
       - ./apps/meetings-service/nest-cli.json:/app/apps/meetings-service/nest-cli.json
+      - ./apps/meetings-service/package.json:/app/apps/meetings-service/package.json
+      - ./apps/meetings-service/prisma:/app/apps/meetings-service/prisma
+      - ./apps/meetings-service/.env:/app/apps/meetings-service/.env
       # Mount shared packages
       - ./packages:/app/packages
       # Named volumes for node_modules to prevent anonymous volumes
@@ -172,6 +178,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3005
+      - CHATS_DATABASE_URL=postgresql://postgres:postgres123@postgres-chats:5432/chats_db
     ports:
       - "3005:3005"
     volumes:
@@ -180,6 +187,9 @@ services:
       - ./apps/chats-service/tsconfig.json:/app/apps/chats-service/tsconfig.json
       - ./apps/chats-service/tsconfig.build.json:/app/apps/chats-service/tsconfig.build.json
       - ./apps/chats-service/nest-cli.json:/app/apps/chats-service/nest-cli.json
+      - ./apps/chats-service/package.json:/app/apps/chats-service/package.json
+      - ./apps/chats-service/prisma:/app/apps/chats-service/prisma
+      - ./apps/chats-service/.env:/app/apps/chats-service/.env
       # Mount shared packages
       - ./packages:/app/packages
       # Named volumes for node_modules to prevent anonymous volumes
@@ -207,6 +217,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3006
+      - EXAMS_DATABASE_URL=postgresql://postgres:postgres123@postgres-exams:5432/exams_db
     ports:
       - "3006:3006"
     volumes:
@@ -215,6 +226,9 @@ services:
       - ./apps/exams-service/tsconfig.json:/app/apps/exams-service/tsconfig.json
       - ./apps/exams-service/tsconfig.build.json:/app/apps/exams-service/tsconfig.build.json
       - ./apps/exams-service/nest-cli.json:/app/apps/exams-service/nest-cli.json
+      - ./apps/exams-service/package.json:/app/apps/exams-service/package.json
+      - ./apps/exams-service/prisma:/app/apps/exams-service/prisma
+      - ./apps/exams-service/.env:/app/apps/exams-service/.env
       # Mount shared packages
       - ./packages:/app/packages
       # Named volumes for node_modules to prevent anonymous volumes
@@ -242,6 +256,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3007
+      - CLASSES_DATABASE_URL=postgresql://postgres:postgres123@postgres-classes:5432/classes_db
     ports:
       - "3007:3007"
     volumes:
@@ -250,6 +265,9 @@ services:
       - ./apps/classes-service/tsconfig.json:/app/apps/classes-service/tsconfig.json
       - ./apps/classes-service/tsconfig.build.json:/app/apps/classes-service/tsconfig.build.json
       - ./apps/classes-service/nest-cli.json:/app/apps/classes-service/nest-cli.json
+      - ./apps/classes-service/package.json:/app/apps/classes-service/package.json
+      - ./apps/classes-service/prisma:/app/apps/classes-service/prisma
+      - ./apps/classes-service/.env:/app/apps/classes-service/.env
       # Mount shared packages
       - ./packages:/app/packages
       # Named volumes for node_modules to prevent anonymous volumes

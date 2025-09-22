@@ -1,16 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubmissionsController } from './submissions.controller';
 import { SubmissionsService } from './submissions.service';
-import { Submission } from './submission.entity';
-import { SubmissionAnswer } from '../submission-answers/submission-answer.entity';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Submission, SubmissionAnswer]),
-  ],
   controllers: [SubmissionsController],
-  providers: [SubmissionsService],
+  providers: [SubmissionsService, PrismaService],
   exports: [SubmissionsService],
 })
 export class SubmissionsModule {}

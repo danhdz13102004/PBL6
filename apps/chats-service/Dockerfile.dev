@@ -1,5 +1,8 @@
 # Development Dockerfile with hot reload
-FROM node:18-alpine
+FROM node:18-slim
+
+# Install required packages for Prisma
+RUN apt-get update && apt-get install -y openssl procps && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -10,14 +13,21 @@ RUN npm install -g nodemon
 COPY package*.json ./
 COPY turbo.json ./
 COPY apps/chats-service/package*.json ./apps/chats-service/
+COPY apps/chats-service/prisma ./apps/chats-service/prisma
 COPY packages/ ./packages/
 
 # Install all dependencies (including dev dependencies)
 RUN npm ci
 
+# Generate Prisma Client for chats-service
+WORKDIR /app/apps/chats-service
+RUN npx prisma generate
+
+# Go back to root
+WORKDIR /app
+
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nestjs -u 1001
+RUN groupadd -r nodejs && useradd -r -g nodejs nestjs
 
 # Change ownership of the app directory to the nestjs user
 RUN chown -R nestjs:nodejs /app
@@ -27,4 +37,4 @@ USER nestjs
 EXPOSE 3005
 
 # Use start:dev for hot reload - source code will be mounted as volume
-CMD ["npm", "run", "start:dev", "--workspace=chats-service"]
+CMD ["sh", "-c", "cd apps/chats-service && npx prisma db push && cd ../.. && npm run start:dev --workspace=chats-service"]
