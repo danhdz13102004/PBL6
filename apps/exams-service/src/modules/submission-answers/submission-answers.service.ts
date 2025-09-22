@@ -1,25 +1,28 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { SubmissionAnswer } from './submission-answer.entity';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateSubmissionAnswerDto, UpdateSubmissionAnswerDto } from './dto';
 
 @Injectable()
 export class SubmissionAnswersService {
-  constructor(
-    @InjectRepository(SubmissionAnswer)
-    private submissionAnswersRepository: Repository<SubmissionAnswer>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async createSubmissionAnswer(createDto: CreateSubmissionAnswerDto): Promise<SubmissionAnswer> {
-    const submissionAnswer = this.submissionAnswersRepository.create(createDto);
-    return this.submissionAnswersRepository.save(submissionAnswer);
+  async createSubmissionAnswer(createDto: CreateSubmissionAnswerDto) {
+    return this.prisma.submissionAnswer.create({
+      data: createDto,
+      include: {
+        submission: true,
+        question: true,
+      },
+    });
   }
 
-  async findSubmissionAnswerById(id: number): Promise<SubmissionAnswer> {
-    const submissionAnswer = await this.submissionAnswersRepository.findOne({
+  async findSubmissionAnswerById(id: number) {
+    const submissionAnswer = await this.prisma.submissionAnswer.findUnique({
       where: { answer_id: id },
-      relations: ['submission', 'question']
+      include: {
+        submission: true,
+        question: true,
+      },
     });
 
     if (!submissionAnswer) {
@@ -29,16 +32,24 @@ export class SubmissionAnswersService {
     return submissionAnswer;
   }
 
-  async updateSubmissionAnswer(id: number, updateDto: UpdateSubmissionAnswerDto): Promise<SubmissionAnswer> {
+  async updateSubmissionAnswer(id: number, updateDto: UpdateSubmissionAnswerDto) {
     const submissionAnswer = await this.findSubmissionAnswerById(id);
-    Object.assign(submissionAnswer, updateDto);
-    return this.submissionAnswersRepository.save(submissionAnswer);
+    return this.prisma.submissionAnswer.update({
+      where: { answer_id: id },
+      data: updateDto,
+      include: {
+        submission: true,
+        question: true,
+      },
+    });
   }
 
-  async findAnswersBySubmission(submissionId: number): Promise<SubmissionAnswer[]> {
-    return this.submissionAnswersRepository.find({
+  async findAnswersBySubmission(submissionId: number) {
+    return this.prisma.submissionAnswer.findMany({
       where: { submission_id: submissionId },
-      relations: ['question']
+      include: {
+        question: true,
+      },
     });
   }
 }

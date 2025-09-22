@@ -1,35 +1,50 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Question } from './question.entity';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateQuestionDto, UpdateQuestionDto } from './dto/question.dto';
 
 @Injectable()
 export class QuestionsService {
-  constructor(
-    @InjectRepository(Question)
-    private questionsRepository: Repository<Question>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async createQuestion(createQuestionDto: CreateQuestionDto): Promise<Question> {
-    const question = this.questionsRepository.create(createQuestionDto);
-    return this.questionsRepository.save(question);
+  async createQuestion(createQuestionDto: CreateQuestionDto) {
+    return this.prisma.question.create({
+      data: createQuestionDto,
+      include: {
+        question_exams: {
+          include: {
+            exam: true,
+          },
+        },
+        submission_answers: true,
+      },
+    });
   }
 
-  async findAllQuestions(type?: string): Promise<Question[]> {
-    const queryBuilder = this.questionsRepository.createQueryBuilder('question');
-    
-    if (type) {
-      queryBuilder.where('question.type = :type', { type });
-    }
-
-    return await queryBuilder.getMany();
+  async findAllQuestions(type?: string) {
+    return this.prisma.question.findMany({
+      where: type ? { type } : undefined,
+      include: {
+        question_exams: {
+          include: {
+            exam: true,
+          },
+        },
+        submission_answers: true,
+      },
+    });
   }
 
-  async findQuestionById(id: number): Promise<Question> {
-    const question = await this.questionsRepository.findOne({
+  async findQuestionById(id: number) {
+    const question = await this.prisma.question.findUnique({
       where: { question_id: id },
-      relations: ['exams', 'submission_answers']
+      include: {
+        question_exams: {
+          include: {
+            exam: true,
+          },
+        },
+        submission_answers: true,
+      },
     });
 
     if (!question) {
@@ -39,22 +54,46 @@ export class QuestionsService {
     return question;
   }
 
-  async updateQuestion(id: number, updateQuestionDto: UpdateQuestionDto): Promise<Question> {
+  async updateQuestion(id: number, updateQuestionDto: UpdateQuestionDto) {
     const question = await this.findQuestionById(id);
-    Object.assign(question, updateQuestionDto);
-    return await this.questionsRepository.save(question);
+    return this.prisma.question.update({
+      where: { question_id: id },
+      data: updateQuestionDto,
+      include: {
+        question_exams: {
+          include: {
+            exam: true,
+          },
+        },
+        submission_answers: true,
+      },
+    });
   }
 
   async deleteQuestion(id: number): Promise<void> {
     const question = await this.findQuestionById(id);
-    await this.questionsRepository.remove(question);
+    await this.prisma.question.delete({
+      where: { question_id: id },
+    });
   }
 
-  async findQuestionsByExam(examId: number): Promise<Question[]> {
-    return await this.questionsRepository
-      .createQueryBuilder('question')
-      .innerJoin('question.exams', 'exam')
-      .where('exam.exam_id = :examId', { examId })
-      .getMany();
+  async findQuestionsByExam(examId: number) {
+    return this.prisma.question.findMany({
+      where: {
+        question_exams: {
+          some: {
+            exam_id: examId,
+          },
+        },
+      },
+      include: {
+        question_exams: {
+          include: {
+            exam: true,
+          },
+        },
+        submission_answers: true,
+      },
+    });
   }
 }

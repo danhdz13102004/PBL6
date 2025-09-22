@@ -97,6 +97,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3001
+      - USERS_DATABASE_URL=postgresql://postgres:postgres123@postgres-users:5432/users_db
     ports:
       - "3001:3001"
     volumes:
@@ -138,6 +139,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3004
+      - MEETINGS_DATABASE_URL=postgresql://postgres:postgres123@postgres-meetings:5432/meetings_db
     ports:
       - "3004:3004"
     volumes:
@@ -176,6 +178,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3005
+      - CHATS_DATABASE_URL=postgresql://postgres:postgres123@postgres-chats:5432/chats_db
     ports:
       - "3005:3005"
     volumes:
@@ -214,6 +217,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3006
+      - EXAMS_DATABASE_URL=postgresql://postgres:postgres123@postgres-exams:5432/exams_db
     ports:
       - "3006:3006"
     volumes:
@@ -252,6 +256,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3007
+      - CLASSES_DATABASE_URL=postgresql://postgres:postgres123@postgres-classes:5432/classes_db
     ports:
       - "3007:3007"
     volumes:
