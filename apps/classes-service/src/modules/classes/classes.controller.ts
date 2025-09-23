@@ -1,15 +1,30 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Inject } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClassesService } from './classes.service';
+import { AddStudentsDto, CreateClassDto } from './dto/class.dto';
+import { UserInfoDto } from './dto/user.dto';
 
 @Controller('classes')
 export class ClassesController {
-  constructor(private readonly classesService: ClassesService) {}
+  constructor(@Inject(ClassesService) private readonly classesService: ClassesService) {}
 
-  @Get('classes.get_hello')
+  @MessagePattern('classes.get_hello')
   getHello(): string {
     return 'Hello from Classes Controller!';
   }
 
-  @Post('classes.create_class')
-  createClass
+  @MessagePattern('classes.create_class')
+  async createClass(@Payload() createClassDto: CreateClassDto) {
+    return await this.classesService.create(createClassDto);
+  }
+
+  @MessagePattern('classes.find_all')
+  async findAllClasses() {
+    return await this.classesService.findAll();
+  }
+
+  @MessagePattern('classes.add_students')
+  async addStudents(@Payload() addStudentsDto: AddStudentsDto){
+    return await this.classesService.addStudents(addStudentsDto);
+  }
 }

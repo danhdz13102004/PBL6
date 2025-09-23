@@ -43,7 +43,6 @@ export class LoginDto {
 }
 
 export class UserInfoDto {
-  @Transform(({value})=> parseInt(value))
   @IsInt()
   id: number;
 
