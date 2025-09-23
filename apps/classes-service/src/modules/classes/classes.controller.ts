@@ -9,4 +9,7 @@ export class ClassesController {
   getHello(): string {
     return 'Hello from Classes Controller!';
   }
+
+  @Post('classes.create_class')
+  createClass
 }
