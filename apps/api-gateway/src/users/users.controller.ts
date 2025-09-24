@@ -60,13 +60,8 @@ export class UsersController {
     }
   }
 
-  @Get(':id/sendotp')
-  sendOTP(@Param('id') id: number, @Body() data: {email: string}){
-    return this.usersClient.send('users.send_otp', {user_id: id, email: data.email});
-  }
-
-  @Post(':id/verifyotp')
-  verifyOTP(@Param('id') id:number, @Body() data: {otp:string, send_at:string}){
-    return this.usersClient.send('users.verify_otp', {user_id: id, user_otp: data.otp, user_otp_send_at: data.send_at});
+  @Post(':id/changepass')
+  changePass(@Param('id') id : number, @Body() data: {oldPass: string, newPass: string}){
+    return this.usersClient.send('users.change_password', {user_id: id, old_pass: data.oldPass, new_pass: data.newPass});
   }
 }
