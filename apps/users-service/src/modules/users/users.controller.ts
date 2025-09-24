@@ -41,4 +41,14 @@ export class UsersController {
   async remove(@Payload() data: { id: number }) {
     return await this.usersService.remove(data.id);
   }
+
+  @MessagePattern('users.send_otp')
+  async sendPTP(@Payload() data: {userId: number, email: string}){
+    return await this.usersService.sendOTP(data.userId, data.email);
+  }
+
+  @MessagePattern('users.verify_otp')
+  async verifyPTP(@Payload() data: {user_id: number, user_otp: string, user_otp_send_at: string}){
+    return await this.usersService.verifyOTP(data.user_id, data.user_otp, new Date(data.user_otp_send_at));
+  }
 }
