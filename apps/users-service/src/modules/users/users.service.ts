@@ -6,6 +6,8 @@ import {
 import { UserMapper } from './mapper/user.mapper';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from '@nestjs-modules/mailer';
+import { CreateUserDto } from './dto/user.dto';
+import { User } from './interfaces/user.interface';
 @Injectable()
 export class UsersService {
     constructor(private prisma: PrismaService, private mailSer: MailerService) {}
