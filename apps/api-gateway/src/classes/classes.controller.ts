@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Inject, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Inject, Param, Post, ValidationPipe } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { catchError, Observable, throwError, timeout, TimeoutError } from 'rxjs';
 import { AddStudentsDto, CreateClassDto } from '../dto/class.dto';
@@ -89,5 +89,10 @@ export class ClassesController {
       }
       throw new HttpException('Failed to add students to class', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Post(':class_code/joinclass')
+  joinClass(@Param('class_code') class_code: number, @Body() data:{user_id}){
+    return this.classesService.send('classes.add_student_class_code',{user_id: data.user_id, class_code});
   }
 }

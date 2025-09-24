@@ -78,4 +78,18 @@ export class ClassesService {
     }
     
   }
+
+  async addStudentClassCode(user_id: number, class_code: string){
+    
+    const _class = await this.prisma.class.findUnique({
+      where:{class_code},
+    });
+    return this.prisma.classEnrollment.create({
+      data: {
+        class_id: _class.class_id,
+        student_id: user_id,
+      }
+    });
+    
+  }
 }

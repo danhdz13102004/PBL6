@@ -27,4 +27,9 @@ export class ClassesController {
   async addStudents(@Payload() addStudentsDto: AddStudentsDto){
     return await this.classesService.addStudents(addStudentsDto);
   }
+
+  @MessagePattern('classes.add_student_class_code')
+  async addStudentClassCode(@Payload() data: {user_id: number, class_code: string}){
+    return await this.classesService.addStudentClassCode(data.user_id, data.class_code);
+  }
 }

@@ -22,14 +22,8 @@ export class UsersController {
     return await this.usersService.findOne(data.id);
   }
 
-
-  @MessagePattern('users.send_otp')
-  async sendPTP(@Payload() data: {userId: number, email: string}){
-    return await this.usersService.sendOTP(data.userId, data.email);
-  }
-
-  @MessagePattern('users.verify_otp')
-  async verifyPTP(@Payload() data: {user_id: number, user_otp: string, user_otp_send_at: string}){
-    return await this.usersService.verifyOTP(data.user_id, data.user_otp, new Date(data.user_otp_send_at));
+  @MessagePattern('users.change_password')
+  async changePass(@Payload() data:{user_id: number, old_pass: string, new_pass: string}){
+    return await this.usersService.changePass(data.user_id, data.old_pass, data.new_pass);
   }
 }
