@@ -1,47 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { 
+  UserResponseDto, 
+  UserListResponseDto, 
+} from './dto/user-response.dto';
+import { UserMapper } from './mapper/user.mapper';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { type Prisma } from '@prisma/users-client';
-import { User } from './interfaces/user.interface';
 import { MailerService } from '@nestjs-modules/mailer';
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private mailSer: MailerService) {}
+    constructor(private prisma: PrismaService, private mailSer: MailerService) {}
   private readonly expired_verify_otp = 5*60*1000;
-  
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     return await this.prisma.user.create({
       data: createUserDto,
     });
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.prisma.user.findMany();
+  async findAll(page: number, limit: number): Promise<UserListResponseDto> {
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.user.count(),
+    ]);
+    
+    return UserMapper.toUserListResponseDto(users, total, page, limit);
   }
 
-  async findOne(user_id: number): Promise<User | null> {
-    return await this.prisma.user.findUnique({
+  async findOne(user_id: number): Promise<UserResponseDto | null> {
+    const user = await this.prisma.user.findUnique({
       where: { user_id },
     });
-  }
-
-  async findByEmail(email: string): Promise<User | null> {
-    return await this.prisma.user.findUnique({
-      where: { email },
-    });
-  }
-
-  async update(user_id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    return await this.prisma.user.update({
-      where: { user_id },
-      data: updateUserDto,
-    });
-  }
-
-  async remove(user_id: number): Promise<User> {
-    return await this.prisma.user.delete({
-      where: { user_id },
-    });
+    
+    if (!user) return null;
+    return UserMapper.toResponseDto(user);
   }
 
   async sendOTP(user_id: number, email: string) {
