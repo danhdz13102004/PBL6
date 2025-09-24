@@ -15,4 +15,13 @@ export class UsersController {
     return this.usersClient.send('users.get_hello', { name: data.name });
   }
 
+  @Get(':id/sendotp')
+  sendOTP(@Param('id') id: number, @Body() data: {email: string}){
+    return this.usersClient.send('users.send_otp', {user_id: id, email: data.email});
+  }
+
+  @Post(':id/verifyotp')
+  verifyOTP(@Param('id') id:number, @Body() data: {otp:string, send_at:string}){
+    return this.usersClient.send('users.verify_otp', {user_id: id, user_otp: data.otp, user_otp_send_at: data.send_at});
+  }
 }
