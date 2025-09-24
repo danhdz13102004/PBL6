@@ -14,6 +14,7 @@ COPY packages/ ./packages/
 
 # Install all dependencies (including dev dependencies)
 RUN npm ci
+RUN cd apps/api-gateway && npm install
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
