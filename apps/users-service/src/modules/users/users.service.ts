@@ -44,13 +44,15 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: {user_id}
     });
+    if (!user) return null;
     if (user.password !== old_pass)  throw new Error('Old password not matched');
-    return this.prisma.user.update({
+    const updated_user = await this.prisma.user.update({
         where: {user_id},
         data: {
           password: new_pass,
           updated_at: new Date(),
         },
       });
+    return UserMapper.toUpdateUserResponseDto(updated_user);
   }
 }
