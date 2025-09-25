@@ -1,4 +1,5 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsBoolean } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEmail, IsString, MinLength, IsOptional, IsBoolean, IsNumber, IsInt } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()
@@ -39,4 +40,19 @@ export class LoginDto {
 
   @IsString()
   password: string;
+}
+
+export class UserInfoDto {
+  @Transform(({value})=> parseInt(value))
+  @IsInt()
+  id: number;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
 }

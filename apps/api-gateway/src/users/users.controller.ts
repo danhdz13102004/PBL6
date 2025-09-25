@@ -60,4 +60,8 @@ export class UsersController {
     }
   }
 
+  @Post(':id/changepass')
+  changePass(@Param('id') id : number, @Body() data: {oldPass: string, newPass: string}){
+    return this.usersClient.send('users.change_password', {user_id: id, old_pass: data.oldPass, new_pass: data.newPass});
+  }
 }

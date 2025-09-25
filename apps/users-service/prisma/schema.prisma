@@ -24,13 +24,13 @@ enum UserStatus {
 
 model User {
   user_id    Int        @id @default(autoincrement())
-  full_name  String     @db.VarChar
-  email      String     @unique @db.VarChar
-  password   String     @db.VarChar
-  role       UserRole
-  status     UserStatus @default(active)
-  created_at DateTime   @default(now()) @db.Timestamp(6)
-  updated_at DateTime?  @updatedAt @db.Timestamp(6)
+  full_name   String     @db.VarChar
+  email       String     @unique @db.VarChar
+  password    String     @db.VarChar
+  role        UserRole
+  status      UserStatus @default(active)
+  created_at  DateTime   @default(now()) @db.Timestamp(6)
+  updated_at  DateTime?  @updatedAt @db.Timestamp(6)
 
   @@map("users")
 }

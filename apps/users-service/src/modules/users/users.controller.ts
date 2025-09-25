@@ -22,4 +22,8 @@ export class UsersController {
     return await this.usersService.findOne(data.id);
   }
 
+  @MessagePattern('users.change_password')
+  async changePass(@Payload() data:{user_id: number, old_pass: string, new_pass: string}){
+    return await this.usersService.changePass(data.user_id, data.old_pass, data.new_pass);
+  }
 }
