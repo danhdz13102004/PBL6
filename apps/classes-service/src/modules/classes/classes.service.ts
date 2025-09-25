@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { AddStudentsDto, CreateClassDto } from './dto/class.dto';
-import { UserInfoDto } from './dto/user.dto';
-
+import { AddStudentsDto, CreateClassDto } from '../dto/class.dto';
+import { UserInfoDto } from '../dto/user.dto';
+import { ClassMapper } from '../mapper/classEnrollment.mapper';
 @Injectable()
 export class ClassesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -54,28 +54,17 @@ export class ClassesService {
 
 
   async addStudents(addStudentsDto: AddStudentsDto){
-    try{
-      var records = []
-      for (let stu of addStudentsDto.students){
-        records.push({
-          class_id: addStudentsDto.class_id,
-          student_id: stu.id,
-        })
-      }
-      this.prisma.classEnrollment.createMany({
-        data: records
+    var records = []
+    for (let stu of addStudentsDto.students){
+      records.push({
+        class_id: addStudentsDto.class_id,
+        student_id: stu.id,
       })
-      return {
-        success: true,
-      }
-
-    }catch(error){
-      console.log('Failed to add students to classes', error.message);
-      return {
-        sucess: false,
-        error: error.message,
-      }
     }
+    var enrolls = await this.prisma.classEnrollment.createManyAndReturn({
+      data: records
+    })
+    return ClassMapper.toAddManyStudentsToClassResponseDto(enrolls);
     
   }
 
@@ -84,12 +73,13 @@ export class ClassesService {
     const _class = await this.prisma.class.findUnique({
       where:{class_code},
     });
-    return this.prisma.classEnrollment.create({
+    if (!_class) return null;
+    const classEnroll = await this.prisma.classEnrollment.create({
       data: {
         class_id: _class.class_id,
         student_id: user_id,
       }
     });
-    
+    return  ClassMapper.toAddOneStudentToClassResponseDto(classEnroll); 
   }
 }

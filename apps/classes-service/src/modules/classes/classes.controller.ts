@@ -1,8 +1,8 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClassesService } from './classes.service';
-import { AddStudentsDto, CreateClassDto } from './dto/class.dto';
-import { UserInfoDto } from './dto/user.dto';
+import { AddStudentsDto, CreateClassDto } from '../dto/class.dto';
+import { UserInfoDto } from '../dto/user.dto';
 
 @Controller('classes')
 export class ClassesController {
