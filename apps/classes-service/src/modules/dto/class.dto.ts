@@ -17,7 +17,6 @@ export class CreateClassDto {
   @IsOptional()
   description?: string;
 
-  @Transform(({ value }) => parseInt(value))
   @IsInt()
   @IsNotEmpty()
   teacher_id: number;
@@ -27,9 +26,7 @@ export class AddStudentsDto {
     
     students: UserInfoDto[];
 
-    @Transform(({value}) => parseInt(value))
     @IsInt()
     class_id: number;
-
 
 }

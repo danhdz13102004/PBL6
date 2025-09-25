@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsEnum, Length } from 'class-validator';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -28,6 +28,10 @@ export class CreateUserDto {
   @IsEnum(UserStatus)
   @IsOptional()
   status?: UserStatus;
+
+  @Length(6)
+  @IsOptional()
+  otp?: string;
 }
 
 export class UpdateUserDto {

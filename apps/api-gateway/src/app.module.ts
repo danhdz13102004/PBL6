@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppController } from './app.controller';
@@ -9,6 +9,8 @@ import { ChatsModule } from './chats/chats.module';
 import { ClassesModule } from './classes/classes.module';
 import { ExamsModule } from './exams/exams.module';
 import { MeetingsModule } from './meetings/meetings.module';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthMiddleware } from './middleware/auth.middleware';
 
 @Module({
   imports: [
@@ -63,8 +65,15 @@ import { MeetingsModule } from './meetings/meetings.module';
     ClassesModule,
     ExamsModule,
     MeetingsModule,
+    JwtModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+    .apply(AuthMiddleware)
+    .exclude("")//exclude Sign in, register here
+  }
+}
